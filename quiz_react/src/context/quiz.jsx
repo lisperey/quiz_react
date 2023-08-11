@@ -8,11 +8,11 @@ const initialState = {
     gameStage: GameStages[0],
     questions,
     currentQuestion: 0,
+    score: 0,
+    answerSelected: false,
 }
 
 const quizReducer = (state, action) =>{
-
-    console.log(state, action);
 
     switch (action.type) {
         case 'CHANGE_STATE':
@@ -28,7 +28,40 @@ const quizReducer = (state, action) =>{
             return {
                 ...state,
                 questions: reorderedQuestions,
+            };
+        case 'CHANGE_QUESTION':
+            // eslint-disable-next-line no-case-declarations
+            const nextQuestion = state.currentQuestion + 1;
+            // eslint-disable-next-line no-case-declarations
+            let endGame = false;
+
+            if(!questions[nextQuestion]){
+                endGame = true;
             }
+            return{
+                ...state,
+                currentQuestion: nextQuestion,
+                gameStage: endGame? GameStages[2]: state.gameStage,
+                answerSelected: false,
+            };
+        case 'NEW_GAME':
+            return initialState;
+
+        case 'CHECK_ANSWER':
+            if (state.answerSelected) return state;
+
+            const answer = action.payload.answer;
+            const option = action.payload.option;
+            let correctAnswer = 0;
+            if(answer === option) correctAnswer = 1;
+
+            return {
+                ...state,
+                score: state.score + correctAnswer,
+                answerSelected: option,
+            }
+
+
         default:
             return state;
     }
